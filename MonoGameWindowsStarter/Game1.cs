@@ -32,11 +32,10 @@ namespace MonoGameWindowsStarter
         //Bricks for the user to break
         Brick[] bricks;
 
-        //Begin game message
-        BeginGame beginGame;
+        //Renders text onto the screen using SpriteFonts
+        GameText textRenderer;
 
-        //End game message
-        EndGame endGame;
+        public int score;
         
         //State of the current game
         GameState gameState;
@@ -51,10 +50,11 @@ namespace MonoGameWindowsStarter
             bricks = new Brick[10];
             for(int i = 0; i < bricks.Length; i++)
             {
-                bricks[i] = new Brick(this);
+                bricks[i] = new Brick();
             }
-            beginGame = new BeginGame(this);
-            endGame = new EndGame(this);
+            textRenderer = new GameText();
+
+            score = 0;
 
             gameState = GameState.Begin;
         }
@@ -91,8 +91,7 @@ namespace MonoGameWindowsStarter
             {
                 bricks[i].LoadContent(Content, i);
             }
-            beginGame.LoadContent(Content);
-            endGame.LoadContent(Content);
+            textRenderer.LoadContent(Content);
         }
 
         /// <summary>
@@ -121,9 +120,10 @@ namespace MonoGameWindowsStarter
                 if(gameState == GameState.End)
                 {
                     ball.Velocity = new Vector2(0, 1);
-                    ball.velocityMultiplier = .5;
+                    ball.velocityMultiplier = .25;
                     ball.bounds.X = this.GraphicsDevice.Viewport.Width / 2;
                     ball.bounds.Y = this.GraphicsDevice.Viewport.Height - 200;
+                    ball.ballState = BallState.Active;
                     
                     paddle.bounds.X = this.GraphicsDevice.Viewport.Width / 2 - paddle.bounds.Width / 2;
                     paddle.bounds.Y = this.GraphicsDevice.Viewport.Height - paddle.bounds.Height;
@@ -132,6 +132,8 @@ namespace MonoGameWindowsStarter
                     {
                         bricks[i].state = BrickState.Active;
                     }
+
+                    score = 0;
                 }
 
                 //Start game
@@ -189,17 +191,24 @@ namespace MonoGameWindowsStarter
                 bricks[i].Draw(spriteBatch);
             }
 
+            Vector2 location = new Vector2(GraphicsDevice.Viewport.Width, 0);
+            textRenderer.DrawScore(spriteBatch, "Score: " + score.ToString(), location);
+
             //If start of the game draw the begin game message
-            if(gameState == GameState.Begin)
+            if (gameState == GameState.Begin)
             {
-                beginGame.Draw(spriteBatch);
+                location = new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
+                textRenderer.Draw(spriteBatch, "Press Enter To Begin", location);
             }
 
             //If game is over draw the end game and begin game message
             if(gameState == GameState.End)
             {
-                endGame.Draw(spriteBatch);
-                beginGame.Draw(spriteBatch);
+                location = new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
+                textRenderer.Draw(spriteBatch, "Press Enter To Begin", location);
+
+                location.Y = GraphicsDevice.Viewport.Height / 4;
+                textRenderer.Draw(spriteBatch, "Game Over!", location);
             }
 
             spriteBatch.End();

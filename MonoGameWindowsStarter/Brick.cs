@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Audio;
 
 namespace MonoGameWindowsStarter
 {
@@ -15,14 +16,22 @@ namespace MonoGameWindowsStarter
     public enum BrickState
     {
         Active,
+        Breaking1,
+        Breaking2,
+        Breaking3,
+        Breaking4,
+        Breaking5,
+        Breaking6,
+        Breaking7,
+        Breaking8,
         Broken
     }
 
     public class Brick
     {
-        Game1 game;
-
         Texture2D texture;
+
+        SoundEffect brickBreak;
 
         BoundingRectangle bounds;
 
@@ -36,9 +45,8 @@ namespace MonoGameWindowsStarter
 
         public BrickState state;
 
-        public Brick(Game1 game)
+        public Brick()
         {
-            this.game = game;
         }
 
         /// <summary>
@@ -49,6 +57,9 @@ namespace MonoGameWindowsStarter
         public void LoadContent(ContentManager content, int locationX)
         {
             texture = content.Load<Texture2D>("Brick");
+
+            brickBreak = content.Load<SoundEffect>("BrickBreak");
+
             bounds.Width = 100;
             bounds.Height = 100;
             bounds.X = bounds.Width * locationX + 21;
@@ -62,7 +73,12 @@ namespace MonoGameWindowsStarter
             //If the brick is broken do not draw
             if(state != BrickState.Broken)
             {
-                spriteBatch.Draw(texture, bounds, Color.White);
+                Rectangle frame = new Rectangle(((int)state)*100, 0, 100, 100);
+                spriteBatch.Draw(texture, bounds, frame, Color.White);
+                if(state != BrickState.Active)
+                {
+                    state++;
+                }
             }
         }
 
@@ -71,7 +87,9 @@ namespace MonoGameWindowsStarter
         /// </summary>
         public void Break()
         {
-            state = BrickState.Broken;
+            state = BrickState.Breaking1;
+
+            brickBreak.Play();
         }
     }
 }

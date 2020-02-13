@@ -25,17 +25,17 @@
 /processorParam:TextureFormat=Color
 /build:Ball.png
 
-#begin BeginMessage.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:BeginMessage.png
+#begin BallBreak.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:BallBreak.wav
+
+#begin Bounce.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Bounce.wav
 
 #begin Brick.png
 /importer:TextureImporter
@@ -49,17 +49,18 @@
 /processorParam:TextureFormat=Color
 /build:Brick.png
 
-#begin GameOverMessage.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
+#begin BrickBreak.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:BrickBreak.wav
+
+#begin defaultFont.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
 /processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:GameOverMessage.png
+/processorParam:TextureFormat=Compressed
+/build:defaultFont.spritefont
 
 #begin Paddle.png
 /importer:TextureImporter

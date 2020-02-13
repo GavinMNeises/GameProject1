@@ -7,9 +7,24 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Audio;
 
 namespace MonoGameWindowsStarter
 {
+    public enum BallState
+    {
+        Active,
+        Breaking1,
+        Breaking2,
+        Breaking3,
+        Breaking4,
+        Breaking5,
+        Breaking6,
+        Breaking7,
+        Breaking8,
+        Broken
+    }
+
     public class Ball
     {
         Game1 game;
@@ -22,6 +37,11 @@ namespace MonoGameWindowsStarter
 
         //Multiplier used to increase ball speed as the game is played
         public double velocityMultiplier;
+
+        SoundEffect ballBounce;
+        SoundEffect ballBreak;
+
+        public BallState ballState;
 
         public Vector2 Velocity
         {
@@ -42,11 +62,16 @@ namespace MonoGameWindowsStarter
             ballVelocity = new Vector2(0, 1);
             ballVelocity.Normalize();
             velocityMultiplier = .25;
+            ballState = BallState.Active;
         }
 
         public void LoadContent(ContentManager content)
         {
             texture = content.Load<Texture2D>("Ball");
+
+            ballBounce = content.Load<SoundEffect>("Bounce");
+            ballBreak = content.Load<SoundEffect>("BallBreak");
+
             bounds.Radius = 37;
             bounds.X = game.GraphicsDevice.Viewport.Width/2;
             bounds.Y = game.GraphicsDevice.Viewport.Height - 200;
@@ -70,12 +95,16 @@ namespace MonoGameWindowsStarter
                 ballVelocity.Y *= -1;
                 float delta = 0 - (bounds.Y - bounds.Radius);
                 bounds.Y += 2 * delta;
+
+                ballBounce.Play();
             }
 
             //Bottom of screen detection and game over
             if(bounds.Y+bounds.Radius > game.GraphicsDevice.Viewport.Height)
             {
                 game.EndGame();
+                ballState = BallState.Breaking1;
+                ballBreak.Play();
             }
 
             //Left side of screen detection 
@@ -84,6 +113,8 @@ namespace MonoGameWindowsStarter
                 ballVelocity.X *= -1;
                 float delta = 0 - (bounds.X - bounds.Radius);
                 bounds.X += 2 * delta;
+
+                ballBounce.Play();
             }
 
             //Right side of screen detection 
@@ -92,6 +123,8 @@ namespace MonoGameWindowsStarter
                 ballVelocity.X *= -1;
                 float delta = game.GraphicsDevice.Viewport.Width - (bounds.X + bounds.Radius);
                 bounds.X += 2 * delta;
+
+                ballBounce.Play();
             }
 
             //Paddle collision detection
@@ -107,6 +140,8 @@ namespace MonoGameWindowsStarter
                 xRebound *= 90;
                 xRebound = Math.PI * xRebound / 180;
                 ballVelocity.X = (float)Math.Sin(xRebound) * -1;
+
+                ballBounce.Play();
             }
 
             //Check for brick collisions
@@ -115,6 +150,9 @@ namespace MonoGameWindowsStarter
                 {
                     //If collided break brick
                     bricks[i].Break();
+
+                    //Increase game score
+                    game.score++;
 
                     //Increase multiplier
                     velocityMultiplier += .04;
@@ -139,7 +177,16 @@ namespace MonoGameWindowsStarter
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(texture, bounds, Color.White);
+            if (ballState != BallState.Broken)
+            {
+                Rectangle frame = new Rectangle(((int)ballState) * 100, 0, 100, 100);
+                spriteBatch.Draw(texture, bounds, frame, Color.White);
+                
+                if(ballState != BallState.Active)
+                {
+                    ballState++;
+                }
+            }
         }
     }
 }
