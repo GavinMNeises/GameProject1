@@ -11,6 +11,10 @@ using Microsoft.Xna.Framework.Audio;
 
 namespace MonoGameWindowsStarter
 {
+    /// <summary>
+    /// BallState allows the ball to know if it is active, breaking or broken
+    /// Allows the ball to be drawn using its different frames
+    /// </summary>
     public enum BallState
     {
         Active,
@@ -177,11 +181,14 @@ namespace MonoGameWindowsStarter
 
         public void Draw(SpriteBatch spriteBatch)
         {
+            //Draw ball if it is not broken
             if (ballState != BallState.Broken)
             {
+                //Offput the frame by the ballState
                 Rectangle frame = new Rectangle(((int)ballState) * 100, 0, 100, 100);
                 spriteBatch.Draw(texture, bounds, frame, Color.White);
                 
+                //If the ball is breaking transition to the next frame
                 if(ballState != BallState.Active)
                 {
                     ballState++;

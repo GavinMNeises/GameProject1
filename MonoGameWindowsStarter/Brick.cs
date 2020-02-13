@@ -11,7 +11,8 @@ using Microsoft.Xna.Framework.Audio;
 namespace MonoGameWindowsStarter
 {
     /// <summary>
-    /// BrickState allows the brick to know if it is active or if it already broken
+    /// BrickState allows the brick to know if it is active, breaking, or if it is already broken
+    /// Also allows the brick to draw its individual frames
     /// </summary>
     public enum BrickState
     {
@@ -73,8 +74,11 @@ namespace MonoGameWindowsStarter
             //If the brick is broken do not draw
             if(state != BrickState.Broken)
             {
+                //Offput the frame by the state of the brick
                 Rectangle frame = new Rectangle(((int)state)*100, 0, 100, 100);
                 spriteBatch.Draw(texture, bounds, frame, Color.White);
+
+                //If the brick is breaking transition to the next frame state
                 if(state != BrickState.Active)
                 {
                     state++;
