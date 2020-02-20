@@ -41,12 +41,14 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AxisList.cs" />
     <Compile Include="Ball.cs" />
     <Compile Include="BoundingCircle.cs" />
     <Compile Include="BoundingRectangle.cs" />
     <Compile Include="Brick.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="GameText.cs" />
+    <Compile Include="IBoundable.cs" />
     <Compile Include="Paddle.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

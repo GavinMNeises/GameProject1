@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Audio;
 
 namespace MonoGameWindowsStarter
@@ -28,43 +27,40 @@ namespace MonoGameWindowsStarter
         Broken
     }
 
-    public class Brick
+    public class Brick : IBoundable
     {
-        Texture2D texture;
+        static Texture2D Texture;
 
-        SoundEffect brickBreak;
+        static SoundEffect brickBreak;
 
         BoundingRectangle bounds;
 
-        public BoundingRectangle Bounds
-        {
-            get
-            {
-                return bounds;
-            }
-        }
+        /// <summary>
+        /// Allows access to Bounds to satisfy IBoundable
+        /// </summary>
+        public BoundingRectangle Bounds => bounds;
 
         public BrickState state;
 
-        public Brick()
-        {
-        }
-
         /// <summary>
-        /// Initializes the brick
+        /// Used to create a new brick
         /// </summary>
-        /// <param name="content">Allows the brick to retreive its texture</param>
-        /// <param name="locationX">Offputs the brick's x position by its location in the array so that they are evenly spread apart</param>
-        public void LoadContent(ContentManager content, int locationX)
+        /// <param name="texture">The texture used for bricks</param>
+        /// <param name="soundEffect">The sound effect used for bricks</param>
+        /// <param name="locationX">The x offset of the brick</param>
+        /// <param name="locationY">The y offset of the brick</param>
+        public Brick(Texture2D texture, SoundEffect soundEffect, int locationX, int locationY)
         {
-            texture = content.Load<Texture2D>("Brick");
-
-            brickBreak = content.Load<SoundEffect>("BrickBreak");
+            if (texture == null || brickBreak == null)
+            {
+                Texture = texture;
+                brickBreak = soundEffect;
+            }
 
             bounds.Width = 100;
             bounds.Height = 100;
             bounds.X = bounds.Width * locationX + 21;
-            bounds.Y = 0;
+            bounds.Y = 100 * locationY;
 
             state = BrickState.Active;
         }
@@ -76,7 +72,7 @@ namespace MonoGameWindowsStarter
             {
                 //Offput the frame by the state of the brick
                 Rectangle frame = new Rectangle(((int)state)*100, 0, 100, 100);
-                spriteBatch.Draw(texture, bounds, frame, Color.White);
+                spriteBatch.Draw(Texture, bounds, frame, Color.White);
 
                 //If the brick is breaking transition to the next frame state
                 if(state != BrickState.Active)

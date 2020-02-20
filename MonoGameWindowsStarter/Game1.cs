@@ -2,6 +2,8 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework.Audio;
 
 namespace MonoGameWindowsStarter
 {
@@ -30,7 +32,10 @@ namespace MonoGameWindowsStarter
         Ball ball;
 
         //Bricks for the user to break
-        Brick[] bricks;
+        List<Brick> bricks;
+
+        //List of all bricks sorted by X positions
+        AxisList xList;
 
         //Renders text onto the screen using SpriteFonts
         GameText textRenderer;
@@ -48,11 +53,7 @@ namespace MonoGameWindowsStarter
 
             paddle = new Paddle(this);
             ball = new Ball(this);
-            bricks = new Brick[10];
-            for(int i = 0; i < bricks.Length; i++)
-            {
-                bricks[i] = new Brick();
-            }
+            bricks = new List<Brick>();
             textRenderer = new GameText();
 
             score = 0;
@@ -75,11 +76,20 @@ namespace MonoGameWindowsStarter
 
             paddle.LoadContent(Content);
             ball.LoadContent(Content);
-            for(int i = 0; i < bricks.Length; i++)
+            for(int i = 0; i < 10; i++)
             {
-                bricks[i].LoadContent(Content, i);
+                for (int j = 0; j < 3; j++)
+                {
+                    bricks.Add(new Brick(Content.Load<Texture2D>("Brick"), Content.Load<SoundEffect>("BrickBreak"), i, j));
+                }
             }
             textRenderer.LoadContent(Content);
+
+            xList = new AxisList();
+            foreach(Brick brick in bricks)
+            {
+                xList.AddGameObject(brick);
+            }
         }
 
         protected override void UnloadContent()
@@ -110,9 +120,9 @@ namespace MonoGameWindowsStarter
                     paddle.bounds.X = this.GraphicsDevice.Viewport.Width / 2 - paddle.bounds.Width / 2;
                     paddle.bounds.Y = this.GraphicsDevice.Viewport.Height - paddle.bounds.Height;
 
-                    for(int i = 0; i < bricks.Length; i++)
+                    foreach(Brick brick in bricks)
                     {
-                        bricks[i].state = BrickState.Active;
+                        brick.state = BrickState.Active;
                     }
 
                     score = 0;
@@ -126,30 +136,31 @@ namespace MonoGameWindowsStarter
             if (gameState == GameState.Playing)
             {
                 paddle.Update(gameTime);
-                ball.Update(gameTime, paddle.bounds, bricks);
+                var brickQuery = xList.QueryRange(ball.bounds.X-ball.bounds.Radius, ball.bounds.X + ball.bounds.Radius);
+                ball.Update(gameTime, paddle.bounds, brickQuery);
             }
 
-            //Check if all of the bricks are broken so that they can be reset
-            bool allBrokenBricks = false;
-            for(int i = 0; i < bricks.Length; i++)
+            //Check if ball is clear of the brick area so that the bricks can be reset
+            if (ball.bounds.Y - ball.bounds.Radius > 300)
             {
-                if(bricks[i].state == BrickState.Active)
+                //Check if all of the bricks are broken so that they can be reset
+                bool allBrokenBricks = true;
+                foreach (Brick brick in bricks)
                 {
-                    allBrokenBricks = false;
-                    break;
+                    if (brick.state == BrickState.Active)
+                    {
+                        allBrokenBricks = false;
+                        break;
+                    }
                 }
-                else
-                {
-                    allBrokenBricks = true;
-                }
-            }
 
-            //Reset bricks if all are broken
-            if (allBrokenBricks)
-            {
-                for (int i = 0; i < bricks.Length; i++)
+                //Reset bricks if all are broken
+                if (allBrokenBricks)
                 {
-                    bricks[i].state = BrickState.Active;
+                    foreach (Brick brick in bricks)
+                    {
+                        brick.state = BrickState.Active;
+                    }
                 }
             }
 
@@ -168,10 +179,10 @@ namespace MonoGameWindowsStarter
             spriteBatch.Begin();
             paddle.Draw(spriteBatch);
             ball.Draw(spriteBatch);
-            for(int i = 0; i < bricks.Length; i++)
+            bricks.ForEach(brick =>
             {
-                bricks[i].Draw(spriteBatch);
-            }
+                brick.Draw(spriteBatch);
+            });
 
             //Draw current score
             Vector2 location = new Vector2(GraphicsDevice.Viewport.Width, 0);

@@ -76,7 +76,7 @@ namespace MonoGameWindowsStarter
             ballBounce = content.Load<SoundEffect>("Bounce");
             ballBreak = content.Load<SoundEffect>("BallBreak");
 
-            bounds.Radius = 37;
+            bounds.Radius = 36;
             bounds.X = game.GraphicsDevice.Viewport.Width/2;
             bounds.Y = game.GraphicsDevice.Viewport.Height - 200;
         }
@@ -87,7 +87,7 @@ namespace MonoGameWindowsStarter
         /// <param name="gameTime">Allows ball to move with a constant speed</param>
         /// <param name="paddle">Used to check collisions with the paddle</param>
         /// <param name="bricks">Used to check collisions with the bricks</param>
-        public void Update(GameTime gameTime, BoundingRectangle paddle, Brick[] bricks)
+        public void Update(GameTime gameTime, BoundingRectangle paddle, IEnumerable<IBoundable> bricks)
         {
             //Update location based on velocity, time, and the current multiplier
             bounds.X += (float)(gameTime.ElapsedGameTime.TotalMilliseconds * ballVelocity.X * velocityMultiplier);
@@ -149,32 +149,54 @@ namespace MonoGameWindowsStarter
             }
 
             //Check for brick collisions
-            for (int i = 0; i < bricks.Length; i++) {
-                if(bricks[i].state == BrickState.Active && bounds.CollidesWith(bricks[i].Bounds))
+            foreach (Brick brick in bricks)
+            {
+                //If the brick is active and the ball collides with it
+                if(brick.state == BrickState.Active && bounds.CollidesWith(brick.Bounds))
                 {
                     //If collided break brick
-                    bricks[i].Break();
+                    brick.Break();
 
                     //Increase game score
                     game.score++;
 
                     //Increase multiplier
-                    velocityMultiplier += .04;
-                    
-                    //Check if the X velocity needs to be inverted
-                    if(bounds.CollidesWithLeftRight(bricks[i].Bounds))
-                    {
-                        ballVelocity.X *= -1;
-                    }
+                    velocityMultiplier += .02;
 
                     //Check if the Y velocity needs to be inverted
-                    if (bounds.CollidesWithTopBottom(bricks[i].Bounds))
+                    if (bounds.CollidesWithTopBottom(brick.Bounds))
                     {
                         ballVelocity.Y *= -1;
+                        //Check if ball hit the top of the brick
+                        if (bounds.Y > brick.Bounds.Y)
+                        {
+                            float delta = (brick.Bounds.Y + brick.Bounds.Height) - (bounds.Y - bounds.Radius);
+                            bounds.Y += 2 * delta;
+                        }
+                        //Else the ball hit the bottom of the brick
+                        else
+                        {
+                            float delta = brick.Bounds.Y - (bounds.Y + bounds.Radius);
+                            bounds.Y -= 2 * delta;
+                        }
                     }
-
-                    //Break to reduce multiple brick breaks per one bounce
-                    break;
+                    //Else the X velocity needs to be inverted
+                    else
+                    {
+                        ballVelocity.X *= -1;
+                        //Check if the ball hit the right side of the brick
+                        if(bounds.X > brick.Bounds.X)
+                        {
+                            float delta = (brick.Bounds.X + brick.Bounds.Width) - (bounds.X - bounds.Radius);
+                            bounds.X += 2 * delta;
+                        }
+                        //Else the ball hit the left side of the brick
+                        else
+                        {
+                            float delta = brick.Bounds.X - (bounds.X + bounds.Radius);
+                            bounds.X -= 2 * delta;
+                        }
+                    }
                 }
             }
         }

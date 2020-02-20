@@ -38,16 +38,16 @@ namespace MonoGameWindowsStarter
             return (Math.Pow(this.Radius, 2) >= (Math.Pow(this.X - nearestX, 2) + Math.Pow(this.Y - nearestY, 2)));
         }
 
+        /// <summary>
+        /// Checks to see if the ball collided with the top/bottom or left/right sides of the rectangle
+        /// </summary>
+        /// <param name="other">The rectangle to detect collisions with</param>
+        /// <returns>If the ball collided with the top/bottom</returns>
         public bool CollidesWithTopBottom(BoundingRectangle other)
         {
-            return !((Y - Radius > other.Y + other.Height) 
-                || (Y + Radius < other.Y));
-        }
-
-        public bool CollidesWithLeftRight(BoundingRectangle other)
-        {
-            return !(((X - Radius > other.X + other.Width)
-                || (X + Radius < other.X)));
+            float xDiff = X - (other.X + (other.Width / 2));
+            float yDiff = Y - (other.Y + (other.Height / 2));
+            return Math.Pow(xDiff, 2) < Math.Pow(yDiff, 2);
         }
 
         public float Clamp(float value, float min, float max)
